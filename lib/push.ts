@@ -16,10 +16,32 @@ type PushMessage = {
   url?: string;
 };
 
+export type SendPushReport =
+  | { status: "skipped"; reason: "no-vapid" | "no-subscriptions" }
+  | {
+      status: "sent";
+      attempted: number;
+      succeeded: number;
+      failed: number;
+      firstError?: string;
+    };
+
+function formatWebPushError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error && "body" in error) {
+    const b = (error as { body?: string }).body;
+    if (typeof b === "string" && b.length > 0 && b.length < 500) return b;
+  }
+  if (typeof error === "object" && error && "statusCode" in error) {
+    return `HTTP ${String((error as { statusCode?: number }).statusCode)}`;
+  }
+  return String(error);
+}
+
 function getVapidConfig() {
-  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT ?? "mailto:admin@farolfix.com";
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim();
+  const privateKey = process.env.VAPID_PRIVATE_KEY?.trim();
+  const subject = process.env.VAPID_SUBJECT?.trim() || "mailto:admin@farolfix.com";
 
   if (!publicKey || !privateKey) {
     return null;
@@ -39,7 +61,7 @@ function validarSubscription(subscription: PushSubscriptionInput) {
 }
 
 export function getPublicVapidKey() {
-  return process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+  return process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim() ?? "";
 }
 
 export async function savePushSubscription(subscription: PushSubscriptionInput) {
@@ -58,13 +80,13 @@ export async function deletePushSubscription(endpoint: string) {
   await db.query("delete from push_subscriptions where endpoint = $1", [endpoint]);
 }
 
-export async function sendPushToAll(message: PushMessage) {
+export async function sendPushToAll(message: PushMessage): Promise<SendPushReport> {
   const vapid = getVapidConfig();
   if (!vapid) {
     console.error(
       "[push] VAPID não configurado. Defina NEXT_PUBLIC_VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY (ex.: npx web-push generate-vapid-keys)."
     );
-    return;
+    return { status: "skipped", reason: "no-vapid" };
   }
 
   webpush.setVapidDetails(vapid.subject, vapid.publicKey, vapid.privateKey);
@@ -76,11 +98,12 @@ export async function sendPushToAll(message: PushMessage) {
 
   if (subscriptions.rows.length === 0) {
     console.warn("[push] Nenhum dispositivo inscrito (tabela push_subscriptions vazia). Ative no /admin.");
-    return;
+    return { status: "skipped", reason: "no-subscriptions" };
   }
 
-  await Promise.all(
-    subscriptions.rows.map(async (item) => {
+  const rows = subscriptions.rows;
+  const outcomes = await Promise.all(
+    rows.map(async (item) => {
       try {
         await webpush.sendNotification(
           {
@@ -92,6 +115,7 @@ export async function sendPushToAll(message: PushMessage) {
           },
           payload
         );
+        return { ok: true as const };
       } catch (error) {
         console.error("[push] Falha ao enviar para endpoint:", item.endpoint.slice(0, 48), error);
         const statusCode =
@@ -102,7 +126,20 @@ export async function sendPushToAll(message: PushMessage) {
         if (statusCode === 404 || statusCode === 410) {
           await deletePushSubscription(item.endpoint);
         }
+        return { ok: false as const, error: formatWebPushError(error) };
       }
     })
   );
+
+  const succeeded = outcomes.filter((o) => o.ok).length;
+  const failed = outcomes.length - succeeded;
+  const firstErr = outcomes.find((o) => !o.ok && "error" in o) as { ok: false; error: string } | undefined;
+
+  return {
+    status: "sent",
+    attempted: rows.length,
+    succeeded,
+    failed,
+    firstError: firstErr?.error
+  };
 }

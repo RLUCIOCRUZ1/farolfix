@@ -30,20 +30,49 @@ export async function POST() {
     });
   }
 
-  await sendPushToAll({
+  const report = await sendPushToAll({
     title: "Farolfix — teste",
     body: "Se você viu esta notificação, o push está funcionando.",
     url: "/admin"
   });
 
+  if (report.status === "skipped" && report.reason === "no-subscriptions") {
+    return NextResponse.json({
+      ok: false,
+      inscricoes: 0,
+      mensagem:
+        "Nenhum aparelho inscrito no banco. Abra o /admin neste celular, toque em Ativar notificações e aceite a permissão."
+    });
+  }
+
+  if (report.status === "skipped" && report.reason === "no-vapid") {
+    return NextResponse.json({
+      ok: false,
+      inscricoes,
+      mensagem:
+        "O servidor ainda não enxerga as chaves VAPID (redeploy após salvar as variáveis ou confira os nomes)."
+    });
+  }
+
+  if (report.status === "sent" && report.failed > 0) {
+    return NextResponse.json(
+      {
+        ok: false,
+        inscricoes,
+        enviados: report.succeeded,
+        falhas: report.failed,
+        mensagem: `O servidor tentou enviar, mas falhou (${report.failed}/${report.attempted}). Detalhe: ${report.firstError ?? "erro desconhecido"}. Geralmente o par de chaves VAPID mudou: em /admin use Desativar e depois Ativar notificações de novo.`
+      },
+      { status: 422 }
+    );
+  }
+
+  const okCount = report.status === "sent" ? report.succeeded : 0;
   return NextResponse.json({
     ok: true,
     inscricoes,
-    mensagem:
-      inscricoes === 0
-        ? "VAPID ok, mas nenhum aparelho inscrito. Toque em Ativar notificações neste celular e tente de novo."
-        : inscricoes < 0
-          ? "Não foi possível ler push_subscriptions. Confira se o SQL do Neon criou essa tabela."
-          : `Tentativa de envio para ${inscricoes} dispositivo(s). Verifique a gaveta de notificações.`
+    enviados: okCount,
+    falhas: 0,
+    mensagem: `Envio concluído para ${okCount} dispositivo(s). Minimize o app ou bloqueie a tela e abra a gaveta de notificações — com o app aberto em primeiro plano o Android às vezes não mostra banner.`
   });
 }

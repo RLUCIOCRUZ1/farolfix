@@ -128,11 +128,22 @@ export function AdminPushManager() {
         mensagem?: string;
         error?: string;
         inscricoes?: number;
+        enviados?: number;
+        falhas?: number;
       };
       if (!res.ok) {
-        throw new Error(body.error ?? "Falha no teste.");
+        const msg = (body as { mensagem?: string }).mensagem ?? body.error ?? "Falha no teste.";
+        throw new Error(msg);
       }
-      setMessage(body.mensagem ?? (body.ok ? "Teste enviado." : "Confira a resposta do servidor."));
+      if (body.ok === false && body.mensagem) {
+        setMessage(body.mensagem);
+        return;
+      }
+      const extra =
+        body.enviados != null || body.falhas != null
+          ? ` (${body.enviados ?? 0} ok / ${body.falhas ?? 0} falha(s))`
+          : "";
+      setMessage((body.mensagem ?? (body.ok ? "Teste enviado." : "Confira a resposta do servidor.")) + extra);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Erro ao testar push.");
     } finally {
