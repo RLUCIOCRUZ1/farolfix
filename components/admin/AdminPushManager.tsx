@@ -19,6 +19,7 @@ export function AdminPushManager() {
   const [supported, setSupported] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [testLoading, setTestLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -59,10 +60,14 @@ export function AdminPushManager() {
           applicationServerKey: urlBase64ToUint8Array(keyBody.publicKey)
         }));
 
+      const payload =
+        typeof subscription.toJSON === "function" ? subscription.toJSON() : subscription;
+
       const saveResponse = await fetch("/api/push", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscription)
+        credentials: "include",
+        body: JSON.stringify(payload)
       });
 
       if (!saveResponse.ok) {
@@ -96,6 +101,7 @@ export function AdminPushManager() {
       await fetch("/api/push", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ endpoint: subscription.endpoint })
       });
 
@@ -106,6 +112,31 @@ export function AdminPushManager() {
       setMessage("Falha ao desativar notificações.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function enviarTeste() {
+    setTestLoading(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/admin/push-test", {
+        method: "POST",
+        credentials: "include"
+      });
+      const body = (await res.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+        inscricoes?: number;
+      };
+      if (!res.ok) {
+        throw new Error(body.error ?? "Falha no teste.");
+      }
+      setMessage(body.mensagem ?? (body.ok ? "Teste enviado." : "Confira a resposta do servidor."));
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Erro ao testar push.");
+    } finally {
+      setTestLoading(false);
     }
   }
 
@@ -144,6 +175,14 @@ export function AdminPushManager() {
           className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-200 disabled:opacity-60"
         >
           Desativar
+        </button>
+        <button
+          type="button"
+          disabled={testLoading}
+          onClick={enviarTeste}
+          className="rounded-lg border border-brand-blue/60 bg-brand-blue/15 px-4 py-2 text-sm font-semibold text-brand-blue disabled:opacity-60"
+        >
+          {testLoading ? "Enviando teste..." : "Enviar notificação de teste"}
         </button>
       </div>
 

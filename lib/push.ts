@@ -60,7 +60,12 @@ export async function deletePushSubscription(endpoint: string) {
 
 export async function sendPushToAll(message: PushMessage) {
   const vapid = getVapidConfig();
-  if (!vapid) return;
+  if (!vapid) {
+    console.error(
+      "[push] VAPID não configurado. Defina NEXT_PUBLIC_VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY (ex.: npx web-push generate-vapid-keys)."
+    );
+    return;
+  }
 
   webpush.setVapidDetails(vapid.subject, vapid.publicKey, vapid.privateKey);
   const payload = JSON.stringify(message);
@@ -68,6 +73,11 @@ export async function sendPushToAll(message: PushMessage) {
   const subscriptions = await db.query<PushSubscriptionRow>(
     "select endpoint, p256dh, auth, created_at from push_subscriptions"
   );
+
+  if (subscriptions.rows.length === 0) {
+    console.warn("[push] Nenhum dispositivo inscrito (tabela push_subscriptions vazia). Ative no /admin.");
+    return;
+  }
 
   await Promise.all(
     subscriptions.rows.map(async (item) => {
@@ -83,6 +93,7 @@ export async function sendPushToAll(message: PushMessage) {
           payload
         );
       } catch (error) {
+        console.error("[push] Falha ao enviar para endpoint:", item.endpoint.slice(0, 48), error);
         const statusCode =
           typeof error === "object" && error && "statusCode" in error
             ? Number((error as { statusCode?: number }).statusCode)
