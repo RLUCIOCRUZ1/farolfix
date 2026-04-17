@@ -1,0 +1,7 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="48" fill="#05070D"/>
+  <circle cx="128" cy="128" r="76" fill="#0A84FF" opacity="0.2"/>
+  <path d="M60 152L94 94H196V118H108L92 152H60Z" fill="#FFFFFF"/>
+  <path d="M122 134H196V162H108L122 134Z" fill="#0A84FF"/>
+  <text x="128" y="206" text-anchor="middle" fill="#FFFFFF" font-size="26" font-family="Arial, sans-serif" font-weight="700">FAROLFIX</text>
+</svg>

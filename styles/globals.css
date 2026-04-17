@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-brand-dark text-white antialiased;
+}
+
+.container-default {
+  @apply mx-auto w-full max-w-6xl px-4;
+}
+
+.section-title {
+  @apply text-2xl font-bold md:text-3xl;
+}
+
+.section-subtitle {
+  @apply mt-2 text-sm text-slate-300 md:text-base;
+}
+
+@keyframes pricePulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(10, 132, 255, 0.15);
+  }
+  50% {
+    transform: scale(1.015);
+    text-shadow: 0 0 18px rgba(10, 132, 255, 0.35);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(10, 132, 255, 0.15);
+  }
+}
+
+.price-pulse {
+  animation: pricePulse 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
