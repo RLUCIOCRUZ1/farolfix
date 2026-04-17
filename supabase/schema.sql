@@ -46,6 +46,18 @@ create table if not exists push_subscriptions (
   created_at timestamptz not null default now()
 );
 
+create table if not exists gallery_images (
+  id uuid primary key default gen_random_uuid(),
+  image_data text not null,
+  legenda text,
+  ativo boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table gallery_images add column if not exists kind text not null default 'image'
+  check (kind in ('image', 'video'));
+
 create index if not exists idx_analytics_tipo on analytics (tipo);
 create index if not exists idx_analytics_created_at on analytics (created_at desc);
 create index if not exists idx_agendamentos_created_at on agendamentos (created_at desc);
+create index if not exists idx_gallery_images_created_at on gallery_images (created_at desc);

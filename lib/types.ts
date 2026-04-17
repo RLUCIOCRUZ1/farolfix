@@ -41,3 +41,21 @@ export type PushSubscriptionRow = {
   auth: string;
   created_at: string;
 };
+
+export type GalleryMediaKind = "image" | "video";
+
+export type GalleryImageRow = {
+  id: string;
+  image_data: string;
+  legenda: string | null;
+  ativo: boolean;
+  created_at: string;
+  kind?: GalleryMediaKind | null;
+};
+
+export type GalleryImageItem = {
+  id: string;
+  src: string;
+  legenda: string;
+  kind: GalleryMediaKind;
+};

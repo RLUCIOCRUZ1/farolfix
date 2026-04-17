@@ -4,10 +4,20 @@ import { BeforeAfterGallery } from "@/components/home/BeforeAfterGallery";
 import { BookingForm } from "@/components/home/BookingForm";
 import { PrimaryButton } from "@/components/home/PrimaryButton";
 import { formatarMoeda } from "@/lib/utils";
+import { getGalleryImages } from "@/services/gallery";
 
 const valorServico = formatarMoeda(200);
 
-export default function HomePage() {
+export default async function HomePage() {
+  const galleryItems = await getGalleryImages().catch(() => [
+    {
+      id: "fallback-antes-depois-01",
+      src: "/gallery/antes-depois-01.png",
+      legenda: "Resultado real Farolfix",
+      kind: "image" as const
+    }
+  ]);
+
   return (
     <main>
       <AccessTracker />
@@ -31,6 +41,20 @@ export default function HomePage() {
             Atendimento automotivo premium em domicílio para recuperar brilho, visibilidade e
             segurança.
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {[
+              "Atendimento a domicílio",
+              "Sem troca de peça",
+              "Garantia de 1 ano"
+            ].map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-slate-700 bg-black/50 px-3 py-1 text-xs font-medium text-slate-100"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
           <PrimaryButton href="#agendamento">Agendar Serviço</PrimaryButton>
         </div>
       </section>
@@ -78,22 +102,57 @@ export default function HomePage() {
             <p className="mt-3 inline-flex rounded-full border border-slate-600 bg-black/40 px-3 py-1 text-sm text-slate-200">
               Valor para Goiânia e região
             </p>
+            <div className="mt-4 space-y-1 text-xs text-slate-300 md:text-sm">
+              <p>Esse valor já contempla o polimento do par de faróis.</p>
+              <p>
+                Atendimento em domicílio para até 20 km; acima disso, aplicamos uma taxa de
+                deslocamento combinada com você antes da visita.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="container-default py-12">
         <h2 className="section-title">Como Funciona</h2>
-        <div className="mt-5 grid gap-3 md:grid-cols-4">
+        <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {[
-            "1. Você agenda",
-            "2. Vamos até você",
-            "3. Executamos o serviço",
-            "4. Farol renovado"
-          ].map((step) => (
-            <div key={step} className="rounded-xl border border-slate-800 bg-black/40 p-4 text-sm">
-              {step}
-            </div>
+            {
+              title: "1. Você agenda",
+              desc: "Preenche em menos de 1 minuto.",
+              icon: "CAL"
+            },
+            {
+              title: "2. Vamos até você",
+              desc: "Atendimento rápido no seu endereço.",
+              icon: "MOB"
+            },
+            {
+              title: "3. Executamos o serviço",
+              desc: "Polimento técnico com acabamento premium.",
+              icon: "FIX"
+            },
+            {
+              title: "4. Farol renovado",
+              desc: "Brilho, transparência e segurança de volta.",
+              icon: "NEW"
+            }
+          ].map((step, index) => (
+            <article
+              key={step.title}
+              className="group rounded-xl border border-slate-800 bg-black/40 p-4 text-sm transition duration-300 hover:-translate-y-1 hover:border-brand-blue/60 hover:bg-slate-900/60"
+            >
+              <div className="flex items-center justify-between">
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-blue/40 bg-gradient-to-br from-brand-blue/30 to-slate-900 text-sm font-extrabold tracking-wider text-brand-blue shadow-glow transition duration-300 group-hover:scale-105">
+                  {step.icon}
+                </div>
+                <span className="text-xs font-medium uppercase tracking-[0.2em] text-brand-blue/70">
+                  Etapa {index + 1}
+                </span>
+              </div>
+              <p className="mt-3 font-semibold">{step.title}</p>
+              <p className="mt-1 text-xs text-slate-300">{step.desc}</p>
+            </article>
           ))}
         </div>
       </section>
@@ -103,7 +162,7 @@ export default function HomePage() {
           <h2 className="section-title">Antes e Depois</h2>
           <p className="section-subtitle">Resultados reais do processo de revitalização.</p>
           <div className="mt-5">
-            <BeforeAfterGallery />
+            <BeforeAfterGallery items={galleryItems} />
           </div>
         </div>
       </section>

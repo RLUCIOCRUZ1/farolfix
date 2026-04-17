@@ -46,7 +46,8 @@ export async function getDashboardData() {
     db.query<AnalyticsRow>("select id, tipo, created_at from analytics order by created_at asc"),
     db.query(
       `select
-         count(*) filter (where status in ('pendente', 'agendado'))::int as pendentes,
+         count(*) filter (where status = 'pendente')::int as pendentes,
+         count(*) filter (where status = 'agendado')::int as agendados,
          count(*) filter (where status = 'executado')::int as executados
        from agendamentos`
     ),
@@ -92,6 +93,7 @@ export async function getDashboardData() {
   const acessos = acessosResp.rows[0]?.total ?? 0;
   const agendamentos = agendamentosResp.rows[0]?.total ?? 0;
   const pendentes = statusResp.rows[0]?.pendentes ?? 0;
+  const agendados = statusResp.rows[0]?.agendados ?? 0;
   const executados = statusResp.rows[0]?.executados ?? 0;
   const faturamentoSemana = faturamentoResp.rows[0]?.semana ?? 0;
   const faturamentoMes = faturamentoResp.rows[0]?.mes ?? 0;
@@ -103,6 +105,7 @@ export async function getDashboardData() {
       agendamentos,
       conversao: percentualConversao(acessos, agendamentos),
       pendentes,
+      agendados,
       executados,
       faturamentoSemana,
       faturamentoMes,

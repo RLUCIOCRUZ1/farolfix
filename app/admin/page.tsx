@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AdminCharts } from "@/components/admin/AdminCharts";
+import { AdminGalleryManager } from "@/components/admin/AdminGalleryManager";
 import { AdminPushManager } from "@/components/admin/AdminPushManager";
 import { RecentBookings } from "@/components/admin/RecentBookings";
 import { StatCard } from "@/components/admin/StatCard";
@@ -7,6 +8,7 @@ import { isAdminAuthenticated } from "@/lib/auth";
 import { formatarMoeda } from "@/lib/utils";
 import { getDashboardData } from "@/services/analytics";
 import { getRecentAgendamentos } from "@/services/agendamentos";
+import { getGalleryImages } from "@/services/gallery";
 import { logoutAdmin } from "./actions";
 
 export default async function AdminPage() {
@@ -15,9 +17,10 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const [dashboard, recentAgendamentos] = await Promise.all([
+  const [dashboard, recentAgendamentos, galleryImages] = await Promise.all([
     getDashboardData(),
-    getRecentAgendamentos()
+    getRecentAgendamentos(),
+    getGalleryImages({ includeInactive: true })
   ]);
 
   return (
@@ -45,8 +48,9 @@ export default async function AdminPage() {
         <StatCard title="Taxa de conversão (%)" value={String(dashboard.cards.conversao)} />
       </section>
 
-      <section className="grid gap-3 md:grid-cols-2">
+      <section className="grid gap-3 md:grid-cols-3">
         <StatCard title="Agendamentos pendentes" value={String(dashboard.cards.pendentes)} />
+        <StatCard title="Agendamentos agendados" value={String(dashboard.cards.agendados)} />
         <StatCard title="Agendamentos executados" value={String(dashboard.cards.executados)} />
       </section>
 
@@ -66,6 +70,7 @@ export default async function AdminPage() {
       </section>
 
       <AdminPushManager />
+      <AdminGalleryManager initialImages={galleryImages} />
       <RecentBookings items={recentAgendamentos} />
       <AdminCharts title="Diário (últimos 14 períodos)" data={dashboard.diario} />
       <AdminCharts title="Mensal (últimos 12 períodos)" data={dashboard.mensal} />

@@ -7,6 +7,16 @@ type RecentBookingsProps = {
   items: AgendamentoRow[];
 };
 
+type EditFormData = {
+  nome: string;
+  endereco: string;
+  telefone: string;
+  modelo_carro: string;
+  observacao: string;
+  valor_servico: string;
+  agendado_para: string;
+};
+
 function formatDate(dateIso: string) {
   return new Date(dateIso).toLocaleString("pt-BR");
 }
@@ -44,6 +54,16 @@ function getStatusClasses(status: AgendamentoStatus) {
 export function RecentBookings({ items }: RecentBookingsProps) {
   const [rows, setRows] = useState(items);
   const [openScheduleId, setOpenScheduleId] = useState<string | null>(null);
+  const [openEditId, setOpenEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditFormData>({
+    nome: "",
+    endereco: "",
+    telefone: "",
+    modelo_carro: "",
+    observacao: "",
+    valor_servico: "200",
+    agendado_para: ""
+  });
   const [agendadoPara, setAgendadoPara] = useState("");
   const [observacao, setObservacao] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -55,8 +75,25 @@ export function RecentBookings({ items }: RecentBookingsProps) {
 
   function openSchedule(item: AgendamentoRow) {
     setOpenScheduleId(item.id);
+    setOpenEditId(null);
     setAgendadoPara(toInputDateTime(item.agendado_para));
     setObservacao(item.observacao ?? "");
+    setError("");
+    setFeedback("");
+  }
+
+  function openEdit(item: AgendamentoRow) {
+    setOpenEditId(item.id);
+    setOpenScheduleId(null);
+    setEditForm({
+      nome: item.nome,
+      endereco: item.endereco,
+      telefone: item.telefone,
+      modelo_carro: item.modelo_carro,
+      observacao: item.observacao ?? "",
+      valor_servico: String(item.valor_servico ?? 200),
+      agendado_para: toInputDateTime(item.agendado_para)
+    });
     setError("");
     setFeedback("");
   }
@@ -128,6 +165,79 @@ export function RecentBookings({ items }: RecentBookingsProps) {
     }
   }
 
+  async function handleEditar(item: AgendamentoRow) {
+    setLoadingId(item.id);
+    setError("");
+    setFeedback("");
+
+    try {
+      const response = await fetch(`/api/admin/agendamentos/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...editForm,
+          valor_servico: Number(editForm.valor_servico),
+          agendado_para: editForm.agendado_para
+        })
+      });
+
+      const body = (await response.json()) as {
+        error?: string;
+        agendamento?: AgendamentoRow;
+        calendarUrl?: string | null;
+      };
+      if (!response.ok || !body.agendamento) {
+        throw new Error(body.error ?? "Falha ao atualizar agendamento.");
+      }
+
+      updateRow(body.agendamento);
+      setOpenEditId(null);
+      setFeedback("Dados do cliente atualizados com sucesso.");
+
+      if (body.calendarUrl) {
+        setCalendarUrlById((current) => ({ ...current, [item.id]: body.calendarUrl! }));
+        window.open(body.calendarUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao editar agendamento.";
+      setError(message);
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  async function handleExcluir(item: AgendamentoRow) {
+    const confirmado = window.confirm(
+      `Deseja realmente excluir o agendamento de ${item.nome}? Essa ação não pode ser desfeita.`
+    );
+    if (!confirmado) return;
+
+    setLoadingId(item.id);
+    setError("");
+    setFeedback("");
+
+    try {
+      const response = await fetch(`/api/admin/agendamentos/${item.id}`, {
+        method: "DELETE"
+      });
+
+      const body = (await response.json()) as { error?: string; ok?: boolean };
+      if (!response.ok || !body.ok) {
+        throw new Error(body.error ?? "Falha ao excluir agendamento.");
+      }
+
+      setRows((current) => current.filter((row) => row.id !== item.id));
+      setOpenEditId((current) => (current === item.id ? null : current));
+      setOpenScheduleId((current) => (current === item.id ? null : current));
+      setFeedback("Agendamento excluído com sucesso.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao excluir agendamento.";
+      setError(message);
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
   return (
     <section className="rounded-2xl border border-slate-800 bg-black/40 p-4">
       <h2 className="text-lg font-semibold">Agendamentos recentes</h2>
@@ -139,7 +249,7 @@ export function RecentBookings({ items }: RecentBookingsProps) {
         <p className="mt-3 text-sm text-slate-300">Nenhum agendamento recebido até agora.</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[880px] text-left text-sm">
+          <table className="w-full min-w-[980px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-700 text-slate-300">
                 <th className="px-2 py-2 font-medium">Cliente</th>
@@ -154,6 +264,7 @@ export function RecentBookings({ items }: RecentBookingsProps) {
             <tbody>
               {rows.map((item) => {
                 const isOpen = openScheduleId === item.id;
+                const isEditing = openEditId === item.id;
                 const isLoading = loadingId === item.id;
                 const calendarUrl = calendarUrlById[item.id];
 
@@ -225,6 +336,23 @@ export function RecentBookings({ items }: RecentBookingsProps) {
                             className="rounded-md border border-emerald-700 px-3 py-1 text-xs text-emerald-300 disabled:opacity-40"
                           >
                             Executado
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openEdit(item)}
+                            className="rounded-md border border-slate-700 px-3 py-1 text-xs hover:border-brand-blue"
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleExcluir(item)}
+                            disabled={isLoading}
+                            className="rounded-md border border-red-700 px-3 py-1 text-xs text-red-300 disabled:opacity-40"
+                          >
+                            Excluir
                           </button>
 
                           {item.status === "agendado" ? (
@@ -310,6 +438,131 @@ export function RecentBookings({ items }: RecentBookingsProps) {
                             <button
                               type="button"
                               onClick={() => setOpenScheduleId(null)}
+                              className="rounded-lg border border-slate-700 px-4 py-2 text-sm"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+
+                    {isEditing ? (
+                      <tr className="border-b border-slate-900/70 bg-slate-950/40">
+                        <td colSpan={7} className="px-3 py-3">
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Nome do cliente</span>
+                              <input
+                                value={editForm.nome}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({ ...current, nome: e.target.value }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Telefone</span>
+                              <input
+                                value={editForm.telefone}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({
+                                    ...current,
+                                    telefone: e.target.value
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Modelo do carro</span>
+                              <input
+                                value={editForm.modelo_carro}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({
+                                    ...current,
+                                    modelo_carro: e.target.value
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Endereço</span>
+                              <input
+                                value={editForm.endereco}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({
+                                    ...current,
+                                    endereco: e.target.value
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Valor do serviço (R$)</span>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={editForm.valor_servico}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({
+                                    ...current,
+                                    valor_servico: e.target.value
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Observação</span>
+                              <input
+                                value={editForm.observacao}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({
+                                    ...current,
+                                    observacao: e.target.value
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                            <label className="text-sm">
+                              <span className="mb-1 block text-slate-300">Reagendar (dia e horário)</span>
+                              <input
+                                type="datetime-local"
+                                value={editForm.agendado_para}
+                                onChange={(e) =>
+                                  setEditForm((current) => ({
+                                    ...current,
+                                    agendado_para: e.target.value
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
+                              />
+                            </label>
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleEditar(item)}
+                              disabled={
+                                isLoading ||
+                                !editForm.nome.trim() ||
+                                !editForm.telefone.trim() ||
+                                !editForm.endereco.trim() ||
+                                !editForm.modelo_carro.trim()
+                              }
+                              className="rounded-lg bg-brand-blue px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                            >
+                              {isLoading ? "Salvando..." : "Salvar edição"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOpenEditId(null)}
                               className="rounded-lg border border-slate-700 px-4 py-2 text-sm"
                             >
                               Cancelar

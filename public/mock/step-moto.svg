@@ -1,0 +1,11 @@
+<svg width="320" height="220" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="220" rx="26" fill="#020617"/>
+  <circle cx="100" cy="154" r="28" fill="#0B1220" stroke="#3B82F6" stroke-width="6"/>
+  <circle cx="220" cy="154" r="28" fill="#0B1220" stroke="#3B82F6" stroke-width="6"/>
+  <path d="M80 136H145L170 108H212L230 136H180L158 155H126L112 136H80Z" fill="#1D4ED8"/>
+  <rect x="167" y="95" width="48" height="13" rx="6" fill="#60A5FA"/>
+  <rect x="126" y="126" width="33" height="12" rx="6" fill="#93C5FD"/>
+  <path d="M230 136L252 118" stroke="#60A5FA" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="257" cy="113" r="7" fill="#DBEAFE"/>
+  <text x="160" y="196" text-anchor="middle" fill="#93C5FD" font-size="18" font-family="Arial, sans-serif" font-weight="700">ATENDIMENTO</text>
+</svg>
