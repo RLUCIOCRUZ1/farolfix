@@ -107,50 +107,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container-default py-12">
-        <h2 className="section-title">Como Funciona</h2>
-        <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              title: "1. Você agenda",
-              desc: "Preenche em menos de 1 minuto.",
-              icon: "CAL"
-            },
-            {
-              title: "2. Vamos até você",
-              desc: "Atendimento rápido no seu endereço.",
-              icon: "MOB"
-            },
-            {
-              title: "3. Executamos o serviço",
-              desc: "Polimento técnico com acabamento premium.",
-              icon: "FIX"
-            },
-            {
-              title: "4. Farol renovado",
-              desc: "Brilho, transparência e segurança de volta.",
-              icon: "NEW"
-            }
-          ].map((step, index) => (
-            <article
-              key={step.title}
-              className="group rounded-xl border border-slate-800 bg-black/40 p-4 text-sm transition duration-300 hover:-translate-y-1 hover:border-brand-blue/60 hover:bg-slate-900/60"
-            >
-              <div className="flex items-center justify-between">
-                <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-blue/40 bg-gradient-to-br from-brand-blue/30 to-slate-900 text-sm font-extrabold tracking-wider text-brand-blue shadow-glow transition duration-300 group-hover:scale-105">
-                  {step.icon}
-                </div>
-                <span className="text-xs font-medium uppercase tracking-[0.2em] text-brand-blue/70">
-                  Etapa {index + 1}
-                </span>
-              </div>
-              <p className="mt-3 font-semibold">{step.title}</p>
-              <p className="mt-1 text-xs text-slate-300">{step.desc}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="border-y border-slate-800 bg-black/40">
         <div className="container-default py-12">
           <h2 className="section-title">Antes e Depois</h2>
