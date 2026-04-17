@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { sendPushToAll } from "@/lib/push";
 import type { AgendamentoInput, AgendamentoRow } from "@/lib/types";
+import { sanitizePhone } from "@/lib/utils";
 import { registrarEvento } from "@/services/analytics";
 
 const AGENDAMENTO_SELECT = `
@@ -184,7 +185,7 @@ export async function atualizarAgendamento(
       id,
       payload.nome.trim(),
       payload.endereco.trim(),
-      payload.telefone.trim(),
+      sanitizePhone(payload.telefone),
       payload.modelo_carro.trim(),
       payload.observacao?.trim() || null,
       valorServico,

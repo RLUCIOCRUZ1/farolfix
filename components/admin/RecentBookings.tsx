@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo, useState } from "react";
 import type { AgendamentoRow, AgendamentoStatus } from "@/lib/types";
+import { normalizeBrazilPhone } from "@/lib/utils";
 
 type RecentBookingsProps = {
   items: AgendamentoRow[];
@@ -22,8 +23,8 @@ function formatDate(dateIso: string) {
 }
 
 function getWhatsAppUrl(telefone: string) {
-  const digits = telefone.replace(/\D/g, "");
-  const normalized = digits.startsWith("55") ? digits : `55${digits}`;
+  const normalized = normalizeBrazilPhone(telefone);
+  if (!normalized) return "";
   return `https://api.whatsapp.com/send?phone=${normalized}`;
 }
 
