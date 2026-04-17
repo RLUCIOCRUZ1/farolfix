@@ -47,15 +47,10 @@ export default async function HomePage() {
             Atendimento automotivo premium em domicílio para recuperar brilho, visibilidade e
             segurança.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {["Atendimento a domicílio", "Garantia de 1 ano"].map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-slate-700 bg-black/50 px-3 py-1 text-xs font-medium text-slate-100"
-              >
-                {item}
-              </span>
-            ))}
+          <div className="flex flex-wrap items-center justify-center">
+            <span className="rounded-full border-2 border-brand-blue/70 bg-brand-blue/15 px-4 py-2 text-sm font-semibold text-brand-blue shadow-glow md:px-5 md:text-base">
+              Garantia de 1 ano
+            </span>
           </div>
           <PrimaryButton href="#agendamento">Agendar Serviço</PrimaryButton>
         </div>
