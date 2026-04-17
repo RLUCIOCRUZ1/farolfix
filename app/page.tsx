@@ -8,15 +8,21 @@ import { getGalleryImages } from "@/services/gallery";
 
 const valorServico = formatarMoeda(200);
 
+/** Sempre lê a galeria no Neon em tempo de requisição (uploads não ficam presos no HTML do build). */
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const galleryItems = await getGalleryImages().catch(() => [
-    {
-      id: "fallback-antes-depois-01",
-      src: "/gallery/antes-depois-01.png",
-      legenda: "Resultado real Farolfix",
-      kind: "image" as const
-    }
-  ]);
+  const galleryItems = await getGalleryImages().catch((err) => {
+    console.error("[gallery] Falha ao carregar galeria na home:", err);
+    return [
+      {
+        id: "fallback-antes-depois-01",
+        src: "/gallery/antes-depois-01.png",
+        legenda: "Resultado real Farolfix",
+        kind: "image" as const
+      }
+    ];
+  });
 
   return (
     <main>
