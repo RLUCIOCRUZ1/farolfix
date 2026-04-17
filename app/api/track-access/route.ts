@@ -5,7 +5,8 @@ export async function POST() {
   try {
     await registrarEvento("acesso");
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ ok: false }, { status: 200 });
+  } catch (error) {
+    console.error("[track-access] Falha ao registrar acesso:", error);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 }
