@@ -102,34 +102,42 @@ export async function sendPushToAll(message: PushMessage): Promise<SendPushRepor
   }
 
   const rows = subscriptions.rows;
-  const outcomes = await Promise.all(
-    rows.map(async (item) => {
-      try {
-        await webpush.sendNotification(
-          {
-            endpoint: item.endpoint,
-            keys: {
-              p256dh: item.p256dh,
-              auth: item.auth
-            }
-          },
-          payload
-        );
-        return { ok: true as const };
-      } catch (error) {
-        console.error("[push] Falha ao enviar para endpoint:", item.endpoint.slice(0, 48), error);
-        const statusCode =
-          typeof error === "object" && error && "statusCode" in error
-            ? Number((error as { statusCode?: number }).statusCode)
-            : undefined;
+  const outcomes: Array<{ ok: true } | { ok: false; error: string }> = [];
 
-        if (statusCode === 404 || statusCode === 410) {
+  /** Envio sequencial: evita que falha ao apagar uma subscription inválida cancele o envio aos outros aparelhos. */
+  for (const item of rows) {
+    try {
+      await webpush.sendNotification(
+        {
+          endpoint: item.endpoint,
+          keys: {
+            p256dh: item.p256dh,
+            auth: item.auth
+          }
+        },
+        payload,
+        { TTL: 86_400, urgency: "high" }
+      );
+      outcomes.push({ ok: true });
+    } catch (error) {
+      console.error("[push] Falha ao enviar para endpoint:", item.endpoint.slice(0, 48), error);
+      const statusCode =
+        typeof error === "object" && error && "statusCode" in error
+          ? Number((error as { statusCode?: number }).statusCode)
+          : undefined;
+
+      // 401/403: chave VAPID ou subscription incompatível; 404/410: expirou — remove para não poluir próximos envios
+      if (statusCode === 404 || statusCode === 410 || statusCode === 403 || statusCode === 401) {
+        try {
           await deletePushSubscription(item.endpoint);
+        } catch (delErr) {
+          console.error("[push] Falha ao remover subscription inválida:", delErr);
         }
-        return { ok: false as const, error: formatWebPushError(error) };
       }
-    })
-  );
+      outcomes.push({ ok: false, error: formatWebPushError(error) });
+    }
+    await new Promise((r) => setTimeout(r, 40));
+  }
 
   const succeeded = outcomes.filter((o) => o.ok).length;
   const failed = outcomes.length - succeeded;

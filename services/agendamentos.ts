@@ -34,12 +34,23 @@ export async function criarAgendamento(payload: AgendamentoInput) {
 
   await registrarEvento("agendamento");
 
-  // A notificação não pode bloquear o agendamento em caso de falha.
-  await sendPushToAll({
-    title: "Novo agendamento Farolfix",
-    body: `${payload.nome} solicitou atendimento para ${payload.modelo_carro}.`,
-    url: "/admin"
-  }).catch(() => undefined);
+  try {
+    const pushReport = await sendPushToAll({
+      title: "Novo agendamento Farolfix",
+      body: `${payload.nome} solicitou atendimento para ${payload.modelo_carro}.`,
+      url: "/admin"
+    });
+    if (pushReport.status === "skipped") {
+      console.warn("[agendamento] Push não enviado:", pushReport.reason);
+    } else if (pushReport.failed > 0) {
+      console.warn(
+        "[agendamento] Push falhou em alguns aparelhos; os demais podem ter recebido.",
+        pushReport
+      );
+    }
+  } catch (err) {
+    console.error("[agendamento] Erro inesperado ao enviar push:", err);
+  }
 
   return { ok: true };
 }

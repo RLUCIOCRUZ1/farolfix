@@ -167,7 +167,8 @@ export function AdminPushManager() {
     <section className="rounded-2xl border border-slate-800 bg-black/40 p-4">
       <h2 className="text-lg font-semibold">Notificações no celular</h2>
       <p className="mt-2 text-sm text-slate-300">
-        Ative para receber alerta instantâneo quando um novo cliente solicitar agendamento.
+        Ative para receber alerta instantâneo quando um novo cliente solicitar agendamento. Se você
+        trocou as chaves VAPID na Vercel, em cada aparelho use Desativar e depois Ativar de novo.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
