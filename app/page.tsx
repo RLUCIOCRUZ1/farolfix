@@ -1,29 +1,13 @@
 import Image from "next/image";
 import { AccessTracker } from "@/components/home/AccessTracker";
-import { BeforeAfterGallery } from "@/components/home/BeforeAfterGallery";
 import { BookingForm } from "@/components/home/BookingForm";
+import { GallerySectionClient } from "@/components/home/GallerySectionClient";
 import { PrimaryButton } from "@/components/home/PrimaryButton";
 import { formatarMoeda } from "@/lib/utils";
-import { getGalleryImages } from "@/services/gallery";
 
 const valorServico = formatarMoeda(200);
 
-/** Sempre lê a galeria no Neon em tempo de requisição (uploads não ficam presos no HTML do build). */
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
-  const galleryItems = await getGalleryImages().catch((err) => {
-    console.error("[gallery] Falha ao carregar galeria na home:", err);
-    return [
-      {
-        id: "fallback-antes-depois-01",
-        src: "/gallery/antes-depois-01.png",
-        legenda: "Resultado real Farolfix",
-        kind: "image" as const
-      }
-    ];
-  });
-
+export default function HomePage() {
   return (
     <main>
       <AccessTracker />
@@ -57,18 +41,7 @@ export default async function HomePage() {
       </section>
 
       <section className="container-default py-12">
-        <h2 className="section-title">Serviços</h2>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {[
-            "Polimento de farol",
-            "Remoção de amarelado",
-            "Restauração de transparência"
-          ].map((item) => (
-            <div key={item} className="rounded-xl border border-slate-800 bg-black/40 p-4">
-              <p className="font-semibold">{item}</p>
-            </div>
-          ))}
-        </div>
+        <h2 className="section-title">Vantagens</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {[
             { titulo: "Segurança", desc: "Melhor visibilidade noturna e em dias de chuva." },
@@ -85,12 +58,21 @@ export default async function HomePage() {
 
       <section className="border-y border-slate-800 bg-black/40">
         <div className="container-default py-12">
-          <h2 className="section-title">Valores</h2>
+          <h2 className="section-title">Antes e Depois</h2>
+          <p className="section-subtitle">Resultados reais do processo de revitalização.</p>
+          <div className="mt-5">
+            <GallerySectionClient />
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-slate-800 bg-black/40">
+        <div className="container-default py-12">
+          <h2 className="section-title">Investimento</h2>
           <p className="section-subtitle">Transparência total para você decidir rápido.</p>
 
           <div className="mt-5 max-w-xl rounded-2xl border-2 border-brand-blue/60 bg-[radial-gradient(circle_at_top,rgba(10,132,255,0.2),rgba(2,6,23,0.9))] p-6 shadow-glow">
-            <p className="text-xs uppercase tracking-[0.18em] text-brand-blue/80">Investimento</p>
-            <p className="price-pulse mt-2 text-5xl font-extrabold leading-none text-brand-blue md:text-6xl">
+            <p className="price-pulse text-5xl font-extrabold leading-none text-brand-blue md:text-6xl">
               {valorServico}
             </p>
             <p className="mt-3 inline-flex rounded-full border border-slate-600 bg-black/40 px-3 py-1 text-sm text-slate-200">
@@ -103,16 +85,6 @@ export default async function HomePage() {
                 deslocamento combinada com você antes da visita.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-slate-800 bg-black/40">
-        <div className="container-default py-12">
-          <h2 className="section-title">Antes e Depois</h2>
-          <p className="section-subtitle">Resultados reais do processo de revitalização.</p>
-          <div className="mt-5">
-            <BeforeAfterGallery items={galleryItems} />
           </div>
         </div>
       </section>

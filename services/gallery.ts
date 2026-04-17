@@ -66,7 +66,8 @@ function isUndefinedColumnError(error: unknown, column: string) {
 
 export async function getGalleryImages(options?: { includeInactive?: boolean }) {
   const includeInactive = Boolean(options?.includeInactive);
-  const whereClause = includeInactive ? "" : "where ativo = true";
+  /** NULL ou omitido conta como ativo (evita linhas sumirem se ativo veio NULL em migrações antigas). */
+  const whereClause = includeInactive ? "" : "where coalesce(ativo, true) = true";
 
   try {
     let response = await db.query<GalleryImageRow>(
