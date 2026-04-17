@@ -16,7 +16,6 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const body = (await request.json()) as {
       nome?: string;
-      endereco?: string;
       telefone?: string;
       modelo_carro?: string;
       observacao?: string;
@@ -26,7 +25,6 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const result = await atualizarAgendamento(id, {
       nome: body.nome ?? "",
-      endereco: body.endereco ?? "",
       telefone: body.telefone ?? "",
       modelo_carro: body.modelo_carro ?? "",
       observacao: body.observacao,

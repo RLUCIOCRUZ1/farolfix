@@ -38,7 +38,7 @@ export async function GET(_request: Request, context: RouteContext) {
     `DTEND:${toIcsDate(end)}`,
     `SUMMARY:Atendimento Farolfix - ${agendamento.nome}`,
     `DESCRIPTION:Cliente: ${agendamento.nome}\\nTelefone: ${agendamento.telefone}\\nCarro: ${agendamento.modelo_carro}\\nObservação: ${agendamento.observacao ?? "-"}`,
-    `LOCATION:${agendamento.endereco}`,
+    `LOCATION:${agendamento.endereco?.trim() || "Atendimento em domicílio (endereço a combinar)"}`,
     "END:VEVENT",
     "END:VCALENDAR"
   ].join("\r\n");

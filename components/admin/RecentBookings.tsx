@@ -10,7 +10,6 @@ type RecentBookingsProps = {
 
 type EditFormData = {
   nome: string;
-  endereco: string;
   telefone: string;
   modelo_carro: string;
   observacao: string;
@@ -58,7 +57,6 @@ export function RecentBookings({ items }: RecentBookingsProps) {
   const [openEditId, setOpenEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditFormData>({
     nome: "",
-    endereco: "",
     telefone: "",
     modelo_carro: "",
     observacao: "",
@@ -88,7 +86,6 @@ export function RecentBookings({ items }: RecentBookingsProps) {
     setOpenScheduleId(null);
     setEditForm({
       nome: item.nome,
-      endereco: item.endereco,
       telefone: item.telefone,
       modelo_carro: item.modelo_carro,
       observacao: item.observacao ?? "",
@@ -250,13 +247,12 @@ export function RecentBookings({ items }: RecentBookingsProps) {
         <p className="mt-3 text-sm text-slate-300">Nenhum agendamento recebido até agora.</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[980px] text-left text-sm">
+          <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-700 text-slate-300">
                 <th className="px-2 py-2 font-medium">Cliente</th>
                 <th className="px-2 py-2 font-medium">Telefone</th>
                 <th className="px-2 py-2 font-medium">Carro</th>
-                <th className="px-2 py-2 font-medium">Endereço</th>
                 <th className="px-2 py-2 font-medium">Status</th>
                 <th className="px-2 py-2 font-medium">Data</th>
                 <th className="px-2 py-2 font-medium text-right">Ações</th>
@@ -296,7 +292,6 @@ export function RecentBookings({ items }: RecentBookingsProps) {
                         </div>
                       </td>
                       <td className="px-2 py-2">{item.modelo_carro}</td>
-                      <td className="px-2 py-2">{item.endereco}</td>
                       <td className="px-2 py-2">
                         <div className="space-y-1">
                           <span
@@ -375,7 +370,7 @@ export function RecentBookings({ items }: RecentBookingsProps) {
 
                     {isOpen ? (
                       <tr className="border-b border-slate-900/70 bg-slate-950/40">
-                        <td colSpan={7} className="px-3 py-3">
+                        <td colSpan={6} className="px-3 py-3">
                           <div className="grid gap-3 md:grid-cols-3">
                             <label className="text-sm">
                               <span className="mb-1 block text-slate-300">Cliente</span>
@@ -450,7 +445,7 @@ export function RecentBookings({ items }: RecentBookingsProps) {
 
                     {isEditing ? (
                       <tr className="border-b border-slate-900/70 bg-slate-950/40">
-                        <td colSpan={7} className="px-3 py-3">
+                        <td colSpan={6} className="px-3 py-3">
                           <div className="grid gap-3 md:grid-cols-2">
                             <label className="text-sm">
                               <span className="mb-1 block text-slate-300">Nome do cliente</span>
@@ -483,19 +478,6 @@ export function RecentBookings({ items }: RecentBookingsProps) {
                                   setEditForm((current) => ({
                                     ...current,
                                     modelo_carro: e.target.value
-                                  }))
-                                }
-                                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
-                              />
-                            </label>
-                            <label className="text-sm">
-                              <span className="mb-1 block text-slate-300">Endereço</span>
-                              <input
-                                value={editForm.endereco}
-                                onChange={(e) =>
-                                  setEditForm((current) => ({
-                                    ...current,
-                                    endereco: e.target.value
                                   }))
                                 }
                                 className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none focus:border-brand-blue"
@@ -554,7 +536,6 @@ export function RecentBookings({ items }: RecentBookingsProps) {
                                 isLoading ||
                                 !editForm.nome.trim() ||
                                 !editForm.telefone.trim() ||
-                                !editForm.endereco.trim() ||
                                 !editForm.modelo_carro.trim()
                               }
                               className="rounded-lg bg-brand-blue px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"

@@ -4,14 +4,12 @@ import { useState } from "react";
 
 type FormData = {
   nome: string;
-  endereco: string;
   telefone: string;
   modelo_carro: string;
 };
 
 const initialData: FormData = {
   nome: "",
-  endereco: "",
   telefone: "",
   modelo_carro: ""
 };
@@ -29,7 +27,6 @@ export function BookingForm() {
     : "";
   const camposObrigatoriosPreenchidos =
     formData.nome.trim().length >= 3 &&
-    formData.endereco.trim().length >= 5 &&
     formData.telefone.replace(/\D/g, "").length >= 8 &&
     formData.modelo_carro.trim().length >= 2;
 
@@ -80,18 +77,6 @@ export function BookingForm() {
           value={formData.nome}
           onChange={(e) => updateField("nome", e.target.value)}
           placeholder="Seu nome completo"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-base outline-none focus:border-brand-blue"
-        />
-      </label>
-
-      <label className="block text-sm">
-        <span className="mb-1 block text-slate-200">Endereço</span>
-        <input
-          required
-          minLength={5}
-          value={formData.endereco}
-          onChange={(e) => updateField("endereco", e.target.value)}
-          placeholder="Rua, número e bairro"
           className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-base outline-none focus:border-brand-blue"
         />
       </label>

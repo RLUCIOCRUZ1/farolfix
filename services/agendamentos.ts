@@ -19,7 +19,7 @@ const AGENDAMENTO_SELECT = `
 `;
 
 function validarPayload(payload: AgendamentoInput) {
-  if (!payload.nome || !payload.endereco || !payload.telefone || !payload.modelo_carro) {
+  if (!payload.nome || !payload.telefone || !payload.modelo_carro) {
     throw new Error("Preencha todos os campos obrigatórios.");
   }
 }
@@ -29,7 +29,7 @@ export async function criarAgendamento(payload: AgendamentoInput) {
 
   await db.query(
     "insert into agendamentos (nome, endereco, telefone, modelo_carro) values ($1, $2, $3, $4)",
-    [payload.nome, payload.endereco, payload.telefone, payload.modelo_carro]
+    [payload.nome, "", payload.telefone, payload.modelo_carro]
   );
 
   await registrarEvento("agendamento");
@@ -96,7 +96,7 @@ function gerarGoogleCalendarUrl(agendamento: AgendamentoRow) {
     text: `Atendimento Farolfix - ${agendamento.nome}`,
     dates: `${formatGoogleDate(startIso)}/${formatGoogleDate(endIso)}`,
     details: `Cliente: ${agendamento.nome}\nTelefone: ${agendamento.telefone}\nCarro: ${agendamento.modelo_carro}\nObservação: ${agendamento.observacao ?? "-"}`,
-    location: agendamento.endereco
+    location: agendamento.endereco?.trim() || "Atendimento em domicílio (endereço a combinar)"
   });
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -163,7 +163,6 @@ export async function atualizarAgendamento(
   id: string,
   payload: {
     nome: string;
-    endereco: string;
     telefone: string;
     modelo_carro: string;
     observacao?: string;
@@ -195,7 +194,7 @@ export async function atualizarAgendamento(
     [
       id,
       payload.nome.trim(),
-      payload.endereco.trim(),
+      "",
       sanitizePhone(payload.telefone),
       payload.modelo_carro.trim(),
       payload.observacao?.trim() || null,

@@ -6,14 +6,12 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       nome: string;
-      endereco: string;
       telefone: string;
       modelo_carro: string;
     };
 
     const payload = {
       nome: body.nome?.trim(),
-      endereco: body.endereco?.trim(),
       telefone: sanitizePhone(body.telefone ?? ""),
       modelo_carro: body.modelo_carro?.trim()
     };

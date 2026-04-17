@@ -2,7 +2,6 @@ export type TipoAnalytics = "acesso" | "agendamento";
 
 export type AgendamentoInput = {
   nome: string;
-  endereco: string;
   telefone: string;
   modelo_carro: string;
 };

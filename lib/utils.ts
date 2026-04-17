@@ -60,14 +60,12 @@ export function sanitizePhone(input: string): string {
 
 export function criarMensagemWhatsApp(data: {
   nome: string;
-  endereco: string;
   telefone: string;
   modeloCarro: string;
 }): string {
   return `Novo agendamento Farolfix:
 
 Nome: ${data.nome}
-Endereço: ${data.endereco}
 Telefone: ${data.telefone}
 Carro: ${data.modeloCarro}`;
 }
