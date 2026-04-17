@@ -3,6 +3,7 @@ import type { GalleryImageItem, GalleryImageRow, GalleryMediaKind } from "@/lib/
 import {
   getYouTubeEmbedUrl,
   isDirectVideoUrl,
+  isPlayableHttpVideo,
   isVercelBlobVideoUrl,
   normalizeVideoInput
 } from "@/lib/gallery-media";
@@ -17,15 +18,23 @@ const FALLBACK_IMAGES: GalleryImageItem[] = [
 ];
 
 function mapToItem(row: GalleryImageRow): GalleryImageItem {
+  const s = row.image_data.trim();
+
   let kind: GalleryMediaKind =
     row.kind === "video" ? "video" : row.kind === "image" ? "image" : "image";
 
   if (row.kind == null) {
-    const s = row.image_data.trim();
     if (
       s.startsWith("http") &&
       (getYouTubeEmbedUrl(s) || isDirectVideoUrl(s) || isVercelBlobVideoUrl(s))
     ) {
+      kind = "video";
+    }
+  }
+
+  // Linhas antigas ou inconsistência: URL de vídeo (Blob, YouTube, .mp4) gravada com kind 'image'
+  if (kind === "image" && s.startsWith("http")) {
+    if (getYouTubeEmbedUrl(s) || isPlayableHttpVideo(s)) {
       kind = "video";
     }
   }
@@ -72,7 +81,11 @@ export async function getGalleryImages(options?: { includeInactive?: boolean }) 
     }
 
     const dynamicItems = response.rows.map(mapToItem);
-    const baseItems = includeInactive ? dynamicItems : [...FALLBACK_IMAGES, ...dynamicItems];
+    const baseItems = includeInactive
+      ? dynamicItems
+      : dynamicItems.length > 0
+        ? dynamicItems
+        : FALLBACK_IMAGES;
     return baseItems;
   } catch (error) {
     if (isMissingTableError(error)) {
@@ -89,7 +102,11 @@ export async function getGalleryImages(options?: { includeInactive?: boolean }) 
         const dynamicItems = response.rows.map((row: GalleryImageRow) =>
           mapToItem({ ...row, kind: "image" })
         );
-        const baseItems = includeInactive ? dynamicItems : [...FALLBACK_IMAGES, ...dynamicItems];
+        const baseItems = includeInactive
+          ? dynamicItems
+          : dynamicItems.length > 0
+            ? dynamicItems
+            : FALLBACK_IMAGES;
         return baseItems;
       } catch (inner) {
         if (isMissingTableError(inner)) {
