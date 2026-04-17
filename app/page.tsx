@@ -92,7 +92,7 @@ export default function HomePage() {
       <section id="agendamento" className="container-default py-12">
         <h2 className="section-title">Agendamento</h2>
         <p className="section-subtitle">
-          Preencha os dados e nossa equipe entra em contato para confirmar seu atendimento.
+          Preencha os dados e nossa equipe entrará em contato para confirmar seu atendimento.
         </p>
         <div className="mt-5 max-w-xl">
           <BookingForm />
