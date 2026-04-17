@@ -1,3 +1,4 @@
+import type { QueryResult, QueryResultRow } from "pg";
 import { Pool } from "pg";
 
 declare global {
@@ -19,8 +20,27 @@ function criarPool() {
   });
 }
 
-export const db = global.farolfixPool ?? criarPool();
+let pool: Pool | undefined;
 
-if (process.env.NODE_ENV !== "production") {
-  global.farolfixPool = db;
+function getPool(): Pool {
+  if (pool) {
+    return pool;
+  }
+  if (global.farolfixPool) {
+    pool = global.farolfixPool;
+    return pool;
+  }
+  pool = criarPool();
+  if (process.env.NODE_ENV !== "production") {
+    global.farolfixPool = pool;
+  }
+  return pool;
 }
+
+/** Só conecta ao abrir a primeira query — evita falha do `next build` sem DATABASE_URL. */
+export const db = {
+  query: <T extends QueryResultRow = QueryResultRow>(
+    text: string,
+    params?: unknown[]
+  ): Promise<QueryResult<T>> => getPool().query<T>(text, params)
+};
