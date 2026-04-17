@@ -42,11 +42,7 @@ export default async function HomePage() {
             segurança.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              "Atendimento a domicílio",
-              "Sem troca de peça",
-              "Garantia de 1 ano"
-            ].map((item) => (
+            {["Atendimento a domicílio", "Garantia de 1 ano"].map((item) => (
               <span
                 key={item}
                 className="rounded-full border border-slate-700 bg-black/50 px-3 py-1 text-xs font-medium text-slate-100"
@@ -61,9 +57,6 @@ export default async function HomePage() {
 
       <section className="container-default py-12">
         <h2 className="section-title">Serviços</h2>
-        <p className="section-subtitle">
-          Polimento técnico para remoção de amarelado e restauração da transparência dos faróis.
-        </p>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {[
             "Polimento de farol",

@@ -44,6 +44,21 @@ export function isDirectVideoUrl(url: string): boolean {
   );
 }
 
+/** Vídeos enviados para o Vercel Blob (URL pública). */
+export function isVercelBlobVideoUrl(url: string): boolean {
+  try {
+    const host = new URL(url.trim()).hostname.toLowerCase();
+    return host.endsWith(".blob.vercel-storage.com") || host.includes("blob.vercel-storage.com");
+  } catch {
+    return false;
+  }
+}
+
+/** Pode ser reproduzido com a tag &lt;video&gt; (MP4/WebM na URL ou arquivo no Blob). */
+export function isPlayableHttpVideo(url: string): boolean {
+  return isDirectVideoUrl(url) || isVercelBlobVideoUrl(url);
+}
+
 export function normalizeVideoInput(raw: string): { kind: GalleryKind; stored: string } {
   const trimmed = raw.trim();
   if (!trimmed) throw new Error("Informe a URL do vídeo.");

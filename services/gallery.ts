@@ -1,6 +1,11 @@
 import { db } from "@/lib/db";
 import type { GalleryImageItem, GalleryImageRow, GalleryMediaKind } from "@/lib/types";
-import { getYouTubeEmbedUrl, isDirectVideoUrl, normalizeVideoInput } from "@/lib/gallery-media";
+import {
+  getYouTubeEmbedUrl,
+  isDirectVideoUrl,
+  isVercelBlobVideoUrl,
+  normalizeVideoInput
+} from "@/lib/gallery-media";
 
 const FALLBACK_IMAGES: GalleryImageItem[] = [
   {
@@ -17,7 +22,10 @@ function mapToItem(row: GalleryImageRow): GalleryImageItem {
 
   if (row.kind == null) {
     const s = row.image_data.trim();
-    if (s.startsWith("http") && (getYouTubeEmbedUrl(s) || isDirectVideoUrl(s))) {
+    if (
+      s.startsWith("http") &&
+      (getYouTubeEmbedUrl(s) || isDirectVideoUrl(s) || isVercelBlobVideoUrl(s))
+    ) {
       kind = "video";
     }
   }

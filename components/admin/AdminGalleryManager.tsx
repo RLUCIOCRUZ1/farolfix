@@ -1,9 +1,9 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
+import { put } from "@vercel/blob/client";
 import { useState } from "react";
 import type { GalleryImageItem } from "@/lib/types";
-import { getYouTubeThumbnailUrl } from "@/lib/gallery-media";
+import { getYouTubeThumbnailUrl, isPlayableHttpVideo } from "@/lib/gallery-media";
 
 function safeVideoPath(name: string) {
   const base = name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
@@ -46,9 +46,21 @@ function AdminThumb({ item }: { item: GalleryImageItem }) {
         </span>
       );
     }
+    if (isPlayableHttpVideo(item.src)) {
+      return (
+        <video
+          src={item.src}
+          muted
+          playsInline
+          preload="metadata"
+          className="h-28 w-full rounded-md object-cover"
+          aria-hidden
+        />
+      );
+    }
     return (
       <div className="flex h-28 w-full items-center justify-center rounded-md bg-slate-900 text-xs text-slate-400">
-        Vídeo (MP4)
+        Vídeo
       </div>
     );
   }
@@ -61,8 +73,11 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
   const [legenda, setLegenda] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [videoProgress, setVideoProgress] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const maxVideoBytes = 120 * 1024 * 1024;
 
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,6 +95,7 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
       const response = await fetch("/api/admin/gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ imageData, legenda })
       });
 
@@ -107,21 +123,45 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
       return;
     }
 
+    if (videoFile.size > maxVideoBytes) {
+      setError(`Arquivo muito grande (máx. ${Math.round(maxVideoBytes / (1024 * 1024))} MB).`);
+      return;
+    }
+
     setLoading(true);
+    setVideoProgress(0);
     setError("");
     setSuccess("");
 
     try {
       const pathname = `gallery/${Date.now()}-${safeVideoPath(videoFile.name)}`;
-      const blob = await upload(pathname, videoFile, {
+      const multipart = videoFile.size > 4 * 1024 * 1024;
+
+      const tokenRes = await fetch("/api/admin/gallery/video-token", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pathname, multipart })
+      });
+
+      const tokenJson = (await tokenRes.json()) as { clientToken?: string; error?: string };
+      if (!tokenRes.ok || !tokenJson.clientToken) {
+        throw new Error(tokenJson.error ?? `Não foi possível iniciar o upload (${tokenRes.status}).`);
+      }
+
+      const blob = await put(pathname, videoFile, {
         access: "public",
-        handleUploadUrl: "/api/admin/gallery/blob",
-        multipart: videoFile.size > 8 * 1024 * 1024
+        token: tokenJson.clientToken,
+        multipart,
+        onUploadProgress: ({ percentage }) => {
+          setVideoProgress(percentage);
+        }
       });
 
       const response = await fetch("/api/admin/gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ videoUrl: blob.url, legenda })
       });
 
@@ -133,18 +173,20 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
       setImages((current) => [body.image!, ...current]);
       setVideoFile(null);
       setLegenda("");
+      setVideoProgress(null);
       setSuccess("Vídeo enviado e adicionado ao carrossel.");
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Erro ao enviar vídeo.";
-      const isBlobToken =
-        /client token|BLOB_READ_WRITE|blob.*token|retrieve the client token/i.test(raw);
+      const isBlobConfig =
+        /BLOB_READ_WRITE|blob.*token|client token|retrieve the client token|Configure BLOB/i.test(raw);
       setError(
-        isBlobToken
-          ? "Falta o token do armazenamento Vercel Blob. No Vercel: projeto → Storage → Blob → conectar. Copie BLOB_READ_WRITE_TOKEN em Environment Variables. No PC, coloque no arquivo .env.local na pasta do projeto e reinicie o servidor (npm run dev)."
+        isBlobConfig
+          ? "Armazenamento de vídeo não configurado: no Vercel, Storage → Blob, conecte ao projeto e defina BLOB_READ_WRITE_TOKEN em Environment Variables. No PC: .env.local e reinicie npm run dev."
           : raw
       );
     } finally {
       setLoading(false);
+      setVideoProgress(null);
     }
   }
 
@@ -157,7 +199,10 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
     setSuccess("");
 
     try {
-      const response = await fetch(`/api/admin/gallery/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/admin/gallery/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
       const body = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !body.ok) {
         throw new Error(body.error ?? "Falha ao excluir item.");
@@ -208,7 +253,7 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
       >
         <input
           type="file"
-          accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
+          accept="video/*,.mp4,.webm,.mov,.m4v"
           onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
           disabled={loading}
           className="min-h-[42px] rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:text-slate-200"
@@ -218,9 +263,21 @@ export function AdminGalleryManager({ initialImages }: AdminGalleryManagerProps)
           disabled={loading || !videoFile}
           className="rounded-lg border border-emerald-700/80 bg-emerald-950/60 px-5 py-2.5 text-sm font-semibold text-emerald-50 disabled:opacity-50"
         >
-          {loading ? "Enviando..." : "Enviar vídeo do PC"}
+          {loading
+            ? videoProgress !== null && videoProgress > 0
+              ? `Enviando ${Math.round(videoProgress)}%`
+              : "Enviando..."
+            : "Enviar vídeo do PC"}
         </button>
       </form>
+      {loading && videoProgress !== null && videoProgress < 100 ? (
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+          <div
+            className="h-full bg-emerald-600 transition-[width] duration-150"
+            style={{ width: `${videoProgress}%` }}
+          />
+        </div>
+      ) : null}
 
       {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
       {success ? <p className="mt-3 text-sm text-emerald-400">{success}</p> : null}

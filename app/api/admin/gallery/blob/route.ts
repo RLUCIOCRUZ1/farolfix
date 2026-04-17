@@ -28,7 +28,11 @@ export async function POST(request: Request) {
           throw new Error("Não autorizado. Faça login no admin.");
         }
         return {
-          allowedContentTypes: ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"],
+          // video/* cobre MP4 do WhatsApp e variações; octet-stream costuma vir de alguns celulares
+          allowedContentTypes: [
+            "video/*",
+            "application/octet-stream"
+          ],
           maximumSizeInBytes: MAX_VIDEO_BYTES,
           addRandomSuffix: true
         };

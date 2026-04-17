@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import type { GalleryImageItem } from "@/lib/types";
-import { getYouTubeEmbedUrl, getYouTubeThumbnailUrl, isDirectVideoUrl } from "@/lib/gallery-media";
+import {
+  getYouTubeEmbedUrl,
+  getYouTubeThumbnailUrl,
+  isPlayableHttpVideo
+} from "@/lib/gallery-media";
 
 type BeforeAfterGalleryProps = {
   items: GalleryImageItem[];
@@ -24,19 +28,20 @@ function GalleryMainMedia({ item }: { item: GalleryImageItem }) {
         </div>
       );
     }
-    if (isDirectVideoUrl(item.src)) {
+    if (isPlayableHttpVideo(item.src)) {
       return (
         <video
           src={item.src}
           controls
           playsInline
+          preload="metadata"
           className="h-[260px] w-full object-contain bg-slate-950 md:h-[420px]"
         />
       );
     }
     return (
       <div className="flex h-[200px] items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-400 md:h-[320px]">
-        URL de vídeo não suportada. Use um link do YouTube ou arquivo .mp4 público (https).
+        URL de vídeo não suportada. Use YouTube, link .mp4 ou envie o arquivo pelo admin.
       </div>
     );
   }
@@ -62,6 +67,18 @@ function GalleryThumb({ item }: { item: GalleryImageItem }) {
             ▶
           </span>
         </span>
+      );
+    }
+    if (isPlayableHttpVideo(item.src)) {
+      return (
+        <video
+          src={item.src}
+          muted
+          playsInline
+          preload="metadata"
+          className="h-20 w-28 object-cover"
+          aria-hidden
+        />
       );
     }
     return (
