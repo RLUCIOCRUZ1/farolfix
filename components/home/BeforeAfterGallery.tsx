@@ -35,12 +35,12 @@ function GalleryMainMedia({ item }: { item: GalleryImageItem }) {
           controls
           playsInline
           preload="metadata"
-          className="h-[260px] w-full object-contain bg-slate-950 md:h-[420px]"
+          className="h-[200px] w-full object-contain bg-slate-950 sm:h-[240px] md:h-[340px]"
         />
       );
     }
     return (
-      <div className="flex h-[200px] items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-400 md:h-[320px]">
+      <div className="flex h-[180px] items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-400 sm:h-[220px] md:h-[280px]">
         URL de vídeo não suportada. Use YouTube, link .mp4 ou envie o arquivo pelo admin.
       </div>
     );
@@ -50,7 +50,7 @@ function GalleryMainMedia({ item }: { item: GalleryImageItem }) {
     <img
       src={item.src}
       alt={item.legenda}
-      className="h-[260px] w-full object-contain bg-slate-950 md:h-[420px]"
+      className="h-[200px] w-full object-contain bg-slate-950 sm:h-[240px] md:h-[340px]"
       loading="eager"
     />
   );
@@ -61,8 +61,8 @@ function GalleryThumb({ item }: { item: GalleryImageItem }) {
     const yt = getYouTubeThumbnailUrl(item.src);
     if (yt) {
       return (
-        <span className="relative block h-20 w-28">
-          <img src={yt} alt="" className="h-20 w-28 object-cover" loading="lazy" />
+        <span className="relative block h-16 w-24">
+          <img src={yt} alt="" className="h-16 w-24 object-cover" loading="lazy" />
           <span className="absolute inset-0 flex items-center justify-center bg-black/35 text-lg text-white">
             ▶
           </span>
@@ -76,19 +76,19 @@ function GalleryThumb({ item }: { item: GalleryImageItem }) {
           muted
           playsInline
           preload="metadata"
-          className="h-20 w-28 object-cover"
+          className="h-16 w-24 object-cover"
           aria-hidden
         />
       );
     }
     return (
-      <div className="flex h-20 w-28 items-center justify-center bg-slate-900 text-[10px] text-slate-400">
+      <div className="flex h-16 w-24 items-center justify-center bg-slate-900 text-[10px] text-slate-400">
         Vídeo
       </div>
     );
   }
 
-  return <img src={item.src} alt={item.legenda} className="h-20 w-28 object-cover" loading="lazy" />;
+  return <img src={item.src} alt={item.legenda} className="h-16 w-24 object-cover" loading="lazy" />;
 }
 
 export function BeforeAfterGallery({ items }: BeforeAfterGalleryProps) {
@@ -122,7 +122,7 @@ export function BeforeAfterGallery({ items }: BeforeAfterGalleryProps) {
               key={item.id}
               type="button"
               onClick={() => setSelectedId(item.id)}
-              className={`min-w-28 overflow-hidden rounded-lg border transition ${
+              className={`min-w-24 overflow-hidden rounded-lg border transition ${
                 isSelected
                   ? "border-brand-blue shadow-glow"
                   : "border-slate-800 opacity-80 hover:opacity-100"

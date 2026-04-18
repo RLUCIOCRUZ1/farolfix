@@ -36,10 +36,10 @@ export function GallerySectionClient() {
   if (items === null) {
     return (
       <div className="mx-auto w-full max-w-3xl space-y-3 animate-pulse" aria-busy="true">
-        <div className="h-[260px] rounded-2xl border border-slate-800 bg-slate-900/40 md:h-[420px]" />
+        <div className="h-[200px] rounded-2xl border border-slate-800 bg-slate-900/40 sm:h-[240px] md:h-[340px]" />
         <div className="flex gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 w-28 shrink-0 rounded-lg bg-slate-900/40" />
+            <div key={i} className="h-16 w-24 shrink-0 rounded-lg bg-slate-900/40" />
           ))}
         </div>
       </div>

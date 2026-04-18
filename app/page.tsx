@@ -5,6 +5,7 @@ import { GallerySectionClient } from "@/components/home/GallerySectionClient";
 import { SocialProofSectionClient } from "@/components/home/SocialProofSectionClient";
 import { InvestimentoPaymentMethods } from "@/components/home/InvestimentoPaymentMethods";
 import { PrimaryButton } from "@/components/home/PrimaryButton";
+import { WhatsAppCta } from "@/components/home/WhatsAppCta";
 import { formatarMoeda } from "@/lib/utils";
 
 const valorServico = formatarMoeda(200);
@@ -46,9 +47,18 @@ export default function HomePage() {
         <h2 className="section-title">Vantagens</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {[
-            { titulo: "Segurança", desc: "Melhor visibilidade noturna e em dias de chuva." },
-            { titulo: "Estética", desc: "Visual renovado e valorização do veículo." },
-            { titulo: "Economia", desc: "Mais barato que trocar o farol completo." }
+            {
+              titulo: "Recupera transparência original",
+              desc: "Devolve o aspecto limpo e o brilho de fábrica ao acrílico."
+            },
+            {
+              titulo: "Evita reprovação em vistoria",
+              desc: "Faróis opacos ou amarelados costumam ser motivo de reprovação."
+            },
+            {
+              titulo: "Mais barato que trocar o farol",
+              desc: "Economia em relação à troca do conjunto completo."
+            }
           ].map((item) => (
             <div key={item.titulo} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
               <p className="font-semibold text-brand-blue">{item.titulo}</p>
@@ -102,8 +112,9 @@ export default function HomePage() {
         <p className="section-subtitle">
           Preencha os dados e nossa equipe entrará em contato para confirmar seu atendimento.
         </p>
-        <div className="mt-5 max-w-xl">
+        <div className="mx-auto mt-5 w-full max-w-xl space-y-6">
           <BookingForm />
+          <WhatsAppCta />
         </div>
       </section>
     </main>

@@ -45,29 +45,29 @@ function ProofCard({ item, index }: { item: SocialProofItem; index: number }) {
 
   return (
     <article
-      className={`mb-5 break-inside-avoid ${tilt} transition-transform duration-300 hover:z-10 hover:scale-[1.02] hover:rotate-0`}
+      className={`mx-auto mb-5 w-full max-w-[220px] break-inside-avoid sm:max-w-[240px] ${tilt} transition-transform duration-300 hover:z-10 hover:scale-[1.02] hover:rotate-0`}
     >
-      <div className="rounded-[1.75rem] bg-gradient-to-b from-slate-600/35 via-slate-800/50 to-slate-950 p-[3px] shadow-xl shadow-black/40">
-        <div className="overflow-hidden rounded-[1.65rem] bg-[#07080c] ring-1 ring-white/[0.06]">
-          <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-slate-950/80 px-3 py-2">
-            <span className="h-2 w-2 rounded-full bg-red-500/90" />
-            <span className="h-2 w-2 rounded-full bg-amber-400/90" />
-            <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
-            <span className="ml-2 text-[10px] font-medium tracking-wide text-slate-500">
+      <div className="rounded-[1.35rem] bg-gradient-to-b from-slate-600/35 via-slate-800/50 to-slate-950 p-[2px] shadow-xl shadow-black/40 sm:rounded-[1.5rem] sm:p-[3px]">
+        <div className="overflow-hidden rounded-[1.25rem] bg-[#07080c] ring-1 ring-white/[0.06] sm:rounded-[1.4rem]">
+          <div className="flex items-center gap-1 border-b border-white/[0.06] bg-slate-950/80 px-2 py-1.5 sm:gap-1.5 sm:px-3 sm:py-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500/90 sm:h-2 sm:w-2" />
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400/90 sm:h-2 sm:w-2" />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/80 sm:h-2 sm:w-2" />
+            <span className="ml-1 text-[9px] font-medium tracking-wide text-slate-500 sm:ml-2 sm:text-[10px]">
               conversa · cliente real
             </span>
           </div>
-          <div className="relative bg-[#0c0e14]">
+          <div className="relative flex justify-center bg-[#0c0e14]">
             <img
               src={item.src}
               alt={item.legenda || "Depoimento de cliente"}
-              className="w-full object-cover"
+              className="max-h-[200px] w-full object-contain object-top sm:max-h-[240px] md:max-h-[260px]"
               loading="lazy"
               decoding="async"
             />
           </div>
           {item.legenda ? (
-            <p className="border-t border-white/[0.06] px-3 py-2.5 text-xs italic leading-relaxed text-slate-400">
+            <p className="border-t border-white/[0.06] px-2 py-2 text-[11px] italic leading-relaxed text-slate-400 sm:px-3 sm:text-xs">
               {item.legenda}
             </p>
           ) : null}
@@ -128,14 +128,14 @@ export function SocialProofSectionClient() {
         </div>
 
         {items === null ? (
-          <div className="mt-10 columns-1 gap-5 sm:columns-2 lg:columns-3" aria-busy="true">
+          <div className="mt-10 columns-1 gap-4 sm:columns-2 sm:gap-5 lg:columns-3" aria-busy="true">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="mb-5 break-inside-avoid animate-pulse rounded-[1.75rem] border border-slate-800 bg-slate-900/50"
+                className="mx-auto mb-5 w-full max-w-[220px] break-inside-avoid animate-pulse rounded-[1.35rem] border border-slate-800 bg-slate-900/50 sm:max-w-[240px]"
               >
-                <div className="h-8 border-b border-slate-800 bg-slate-950/80" />
-                <div className="aspect-[9/16] max-h-[320px] bg-slate-900/60 md:max-h-[380px]" />
+                <div className="h-7 border-b border-slate-800 bg-slate-950/80 sm:h-8" />
+                <div className="h-[200px] bg-slate-900/60 sm:h-[240px] md:h-[260px]" />
               </div>
             ))}
           </div>
