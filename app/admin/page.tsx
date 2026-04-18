@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminCharts } from "@/components/admin/AdminCharts";
 import { AdminGalleryManager } from "@/components/admin/AdminGalleryManager";
+import { AdminSocialProofManager } from "@/components/admin/AdminSocialProofManager";
 import { AdminPushManager } from "@/components/admin/AdminPushManager";
 import { RecentBookings } from "@/components/admin/RecentBookings";
 import { StatCard } from "@/components/admin/StatCard";
@@ -9,6 +10,7 @@ import { formatarMoeda } from "@/lib/utils";
 import { getDashboardData } from "@/services/analytics";
 import { getRecentAgendamentos } from "@/services/agendamentos";
 import { getGalleryImages } from "@/services/gallery";
+import { getSocialProofImages } from "@/services/social-proof";
 import { logoutAdmin } from "./actions";
 
 export default async function AdminPage() {
@@ -17,10 +19,11 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const [dashboard, recentAgendamentos, galleryImages] = await Promise.all([
+  const [dashboard, recentAgendamentos, galleryImages, socialProofItems] = await Promise.all([
     getDashboardData(),
     getRecentAgendamentos(),
-    getGalleryImages({ includeInactive: true })
+    getGalleryImages({ includeInactive: true }),
+    getSocialProofImages({ includeInactive: true })
   ]);
 
   return (
@@ -71,6 +74,7 @@ export default async function AdminPage() {
 
       <AdminPushManager />
       <AdminGalleryManager initialImages={galleryImages} />
+      <AdminSocialProofManager initialItems={socialProofItems} />
       <RecentBookings items={recentAgendamentos} />
       <AdminCharts title="Diário (últimos 14 períodos)" data={dashboard.diario} />
       <AdminCharts title="Mensal (últimos 12 períodos)" data={dashboard.mensal} />

@@ -58,3 +58,21 @@ export type GalleryImageItem = {
   legenda: string;
   kind: GalleryMediaKind;
 };
+
+export type SocialProofRow = {
+  id: string;
+  image_data: string;
+  legenda: string | null;
+  ativo: boolean;
+  created_at: string;
+};
+
+export type SocialProofItem = {
+  id: string;
+  src: string;
+  legenda: string;
+};
+
+export type SocialProofAdminItem = SocialProofItem & {
+  ativo: boolean;
+};

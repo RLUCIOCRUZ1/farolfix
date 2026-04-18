@@ -61,3 +61,14 @@ create index if not exists idx_analytics_tipo on analytics (tipo);
 create index if not exists idx_analytics_created_at on analytics (created_at desc);
 create index if not exists idx_agendamentos_created_at on agendamentos (created_at desc);
 create index if not exists idx_gallery_images_created_at on gallery_images (created_at desc);
+
+/** Prints de conversas / elogios (WhatsApp etc.) exibidos na home — enviados pelo admin. */
+create table if not exists social_proof_images (
+  id uuid primary key default gen_random_uuid(),
+  image_data text not null,
+  legenda text,
+  ativo boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_social_proof_created_at on social_proof_images (created_at desc);

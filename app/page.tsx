@@ -2,6 +2,8 @@ import Image from "next/image";
 import { AccessTracker } from "@/components/home/AccessTracker";
 import { BookingForm } from "@/components/home/BookingForm";
 import { GallerySectionClient } from "@/components/home/GallerySectionClient";
+import { SocialProofSectionClient } from "@/components/home/SocialProofSectionClient";
+import { InvestimentoPaymentMethods } from "@/components/home/InvestimentoPaymentMethods";
 import { PrimaryButton } from "@/components/home/PrimaryButton";
 import { formatarMoeda } from "@/lib/utils";
 
@@ -36,7 +38,7 @@ export default function HomePage() {
               Garantia de 1 ano
             </span>
           </div>
-          <PrimaryButton href="#agendamento">Agendar Serviço</PrimaryButton>
+          <PrimaryButton href="#agendamento">Solicitar atendimento</PrimaryButton>
         </div>
       </section>
 
@@ -66,6 +68,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <SocialProofSectionClient />
+
       <section className="border-y border-slate-800 bg-black/40">
         <div className="container-default py-12">
           <h2 className="section-title">Investimento</h2>
@@ -85,6 +89,7 @@ export default function HomePage() {
                 deslocamento combinada com você antes da visita.
               </p>
             </div>
+            <InvestimentoPaymentMethods />
           </div>
         </div>
       </section>
