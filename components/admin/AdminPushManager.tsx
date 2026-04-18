@@ -45,7 +45,7 @@ export function AdminPushManager() {
         throw new Error("Permissão de notificação negada.");
       }
 
-      const keyResponse = await fetch("/api/push");
+      const keyResponse = await fetch("/api/push", { credentials: "same-origin" });
       const keyBody = (await keyResponse.json()) as { publicKey?: string };
       if (!keyBody.publicKey) {
         throw new Error("Chave pública VAPID não configurada no servidor.");
@@ -72,11 +72,19 @@ export function AdminPushManager() {
 
       if (!saveResponse.ok) {
         const body = (await saveResponse.json()) as { error?: string };
-        throw new Error(body.error ?? "Falha ao registrar notificações.");
+        const err = body.error ?? "Falha ao registrar notificações.";
+        if (saveResponse.status === 401) {
+          throw new Error(
+            `${err} Toque em Sair, entre de novo no admin e use Registrar no servidor.`
+          );
+        }
+        throw new Error(err);
       }
 
       setEnabled(true);
-      setMessage("Notificações ativadas com sucesso.");
+      setMessage(
+        "Inscrição salva no servidor. Toque em Enviar notificação de teste para confirmar neste aparelho."
+      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Não foi possível ativar notificações.";
@@ -167,18 +175,20 @@ export function AdminPushManager() {
     <section className="rounded-2xl border border-slate-800 bg-black/40 p-4">
       <h2 className="text-lg font-semibold">Notificações no celular</h2>
       <p className="mt-2 text-sm text-slate-300">
-        Ative para receber alerta instantâneo quando um novo cliente solicitar agendamento. Se você
-        trocou as chaves VAPID na Vercel, em cada aparelho use Desativar e depois Ativar de novo.
+        Ative para receber alerta instantâneo quando um novo cliente solicitar agendamento. Se o
+        teste disser que não há aparelho no banco, toque em &quot;Registrar no servidor&quot; mesmo
+        já tendo permissão — isso grava a inscrição no Neon. Se trocou as chaves VAPID na Vercel,
+        use Desativar e depois registrar de novo em cada aparelho.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={loading || enabled}
+          disabled={loading}
           onClick={habilitarNotificacoes}
           className="rounded-lg bg-brand-blue px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
-          Ativar notificações
+          {enabled ? "Registrar no servidor" : "Ativar notificações"}
         </button>
         <button
           type="button"
