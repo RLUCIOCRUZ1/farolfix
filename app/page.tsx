@@ -4,7 +4,6 @@ import { BookingForm } from "@/components/home/BookingForm";
 import { GallerySectionClient } from "@/components/home/GallerySectionClient";
 import { SocialProofSectionClient } from "@/components/home/SocialProofSectionClient";
 import { InvestimentoPaymentMethods } from "@/components/home/InvestimentoPaymentMethods";
-import { PrimaryButton } from "@/components/home/PrimaryButton";
 import { StickyCtaBar } from "@/components/home/StickyCtaBar";
 import { WhatsAppCta } from "@/components/home/WhatsAppCta";
 import { formatarMoeda } from "@/lib/utils";
@@ -46,7 +45,6 @@ export default function HomePage() {
               Garantia de 1 ano
             </span>
           </div>
-          <PrimaryButton href="#agendamento">Solicitar atendimento</PrimaryButton>
         </div>
       </section>
 
