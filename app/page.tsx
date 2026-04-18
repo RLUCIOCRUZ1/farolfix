@@ -89,7 +89,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="agendamento" className="container-default py-12">
+      <section
+        id="agendamento"
+        className="container-default scroll-mt-6 py-12 md:scroll-mt-8"
+      >
         <h2 className="section-title">Agendamento</h2>
         <p className="section-subtitle">
           Preencha os dados e nossa equipe entrará em contato para confirmar seu atendimento.
