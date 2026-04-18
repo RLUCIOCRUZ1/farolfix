@@ -131,7 +131,7 @@ export function BookingForm() {
           minLength={8}
           value={formData.telefone}
           onChange={(e) => updateField("telefone", e.target.value)}
-          placeholder="Com DDD (ex.: 62999887766) ou só o celular (completa com 62)"
+          placeholder="Com DDD (ex.: 62999887766)"
           className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-base outline-none focus:border-brand-blue"
         />
       </label>

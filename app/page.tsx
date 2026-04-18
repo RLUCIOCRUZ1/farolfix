@@ -108,13 +108,15 @@ export default function HomePage() {
         id="agendamento"
         className="container-default scroll-mt-6 py-12 md:scroll-mt-8"
       >
-        <h2 className="section-title">Agendamento</h2>
-        <p className="section-subtitle">
-          Preencha os dados e nossa equipe entrará em contato para confirmar seu atendimento.
-        </p>
-        <div className="mx-auto mt-5 w-full max-w-xl space-y-6">
-          <BookingForm />
-          <WhatsAppCta />
+        <div className="w-full max-w-xl">
+          <h2 className="section-title">Agendamento</h2>
+          <p className="section-subtitle">
+            Preencha os dados e nossa equipe entrará em contato para confirmar seu atendimento.
+          </p>
+          <div className="mt-5 space-y-6">
+            <BookingForm />
+            <WhatsAppCta />
+          </div>
         </div>
       </section>
     </main>
