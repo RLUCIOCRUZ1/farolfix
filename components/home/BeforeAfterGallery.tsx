@@ -35,7 +35,7 @@ function GalleryMainMedia({ item }: { item: GalleryImageItem }) {
           controls
           playsInline
           preload="metadata"
-          className="h-[200px] w-full object-contain bg-slate-950 sm:h-[240px] md:h-[340px]"
+          className="h-[200px] w-full object-contain bg-black sm:h-[240px] md:h-[340px] contrast-[1.08]"
         />
       );
     }
@@ -50,7 +50,7 @@ function GalleryMainMedia({ item }: { item: GalleryImageItem }) {
     <img
       src={item.src}
       alt={item.legenda}
-      className="h-[200px] w-full object-contain bg-slate-950 sm:h-[240px] md:h-[340px]"
+      className="h-[200px] w-full object-contain bg-black sm:h-[240px] md:h-[340px] contrast-[1.12] saturate-[1.06]"
       loading="eager"
     />
   );
@@ -106,7 +106,7 @@ export function BeforeAfterGallery({ items }: BeforeAfterGalleryProps) {
 
   return (
     <div className="space-y-3">
-      <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-800 bg-black/40">
+      <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-800 bg-black/40 shadow-lg">
         <GalleryMainMedia item={selected} />
         <figcaption className="border-t border-slate-800 p-3 text-sm text-slate-200">
           {selected.legenda}

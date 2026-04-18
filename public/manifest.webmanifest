@@ -10,7 +10,7 @@
   "icons": [
     {
       "src": "/logo-farolfix.png",
-      "sizes": "512x512",
+      "sizes": "375x240",
       "type": "image/png",
       "purpose": "any"
     }
